@@ -38,11 +38,11 @@ class QdrantStore:
         self.client.upsert(collection_name=self.collection_name, points=points)
 
     def search(self, query_vector: list[float], top_k: int = 20) -> list[Chunk]:
-        results = self.client.search(
+        results = self.client.query_points(
             collection_name=self.collection_name,
-            query_vector=query_vector,
+            query=query_vector,
             limit=top_k,
-        )
+        ).points
         return [self._point_to_chunk(r.id, r.payload) for r in results]
 
     def get_by_ids(self, ids: list[str]) -> list[Chunk]:
@@ -71,18 +71,16 @@ class QdrantStore:
             token_freq[idx] = token_freq.get(idx, 0.0) + 1.0
 
         try:
-            from qdrant_client.models import SparseVector, NamedSparseVector
-            results = self.client.search(
+            from qdrant_client.models import SparseVector
+            results = self.client.query_points(
                 collection_name=self.collection_name,
-                query_vector=NamedSparseVector(
-                    name="bm25",
-                    vector=SparseVector(
-                        indices=list(token_freq.keys()),
-                        values=list(token_freq.values()),
-                    ),
+                query=SparseVector(
+                    indices=list(token_freq.keys()),
+                    values=list(token_freq.values()),
                 ),
+                using="bm25",
                 limit=top_k,
-            )
+            ).points
             return [self._point_to_chunk(r.id, r.payload) for r in results]
         except Exception:
             return []

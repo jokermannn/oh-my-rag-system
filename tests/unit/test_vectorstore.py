@@ -29,12 +29,11 @@ def test_upsert_parent_chunks_no_vector():
 
 def test_search_returns_chunks():
     mock_client = MagicMock()
-    mock_client.search.return_value = [
-        MagicMock(
-            id="c1", score=0.9,
-            payload={"document_id": "doc1", "content": "hello", "parent_id": "p1", "level": "child", "metadata": {}},
-        )
-    ]
+    mock_point = MagicMock(
+        id="c1", score=0.9,
+        payload={"document_id": "doc1", "content": "hello", "parent_id": "p1", "level": "child", "metadata": {}},
+    )
+    mock_client.query_points.return_value = MagicMock(points=[mock_point])
     store = QdrantStore(client=mock_client, collection_name="test")
     results = store.search(query_vector=[0.1, 0.2, 0.3], top_k=5)
     assert len(results) == 1
