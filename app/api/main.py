@@ -4,7 +4,7 @@ from app.vectorstore.qdrant_store import QdrantStore
 from app.llm.base import BaseLLM
 from app.reranker.base import BaseReranker
 import app.api.deps as deps
-from app.api.routes import ingest, query, conversations, jobs
+from app.api.routes import ingest, query, conversations, jobs, documents
 from app.api.routes import eval as eval_router
 
 
@@ -25,4 +25,5 @@ def create_app(
     app.include_router(conversations.router)
     app.include_router(jobs.router)
     app.include_router(eval_router.router)
+    app.include_router(documents.router)
     return app
