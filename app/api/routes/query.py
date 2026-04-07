@@ -31,6 +31,17 @@ def query(
     timings: dict[str, float] = {}
     question = req.question
 
+    # conversation rewrite
+    if req.conversation_id:
+        from app.api.routes.conversations import _manager as conv_manager
+        try:
+            question = conv_manager.rewrite_query(req.conversation_id, question)
+            if question != req.question:
+                trace.query_rewrite = question
+        except KeyError:
+            from fastapi import HTTPException
+            raise HTTPException(status_code=404, detail="Conversation not found")
+
     # HyDE: generate hypothetical doc and average embeddings
     if req.use_hyde:
         t0 = time.monotonic()
