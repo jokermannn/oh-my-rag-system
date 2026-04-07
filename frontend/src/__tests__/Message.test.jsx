@@ -19,9 +19,8 @@ describe('Message', () => {
   })
 
   it('shows thinking dots when msg.thinking is true', () => {
-    const { container } = render(<Message msg={{ role: 'assistant', thinking: true, content: '', sources: [] }} />)
-    // ThinkingDots renders 3 dots
-    const dots = container.querySelectorAll('[style*="pulse-dot"]')
+    render(<Message msg={{ role: 'assistant', thinking: true, content: '', sources: [] }} />)
+    const dots = screen.getAllByTestId('thinking-dot')
     expect(dots.length).toBe(3)
   })
 

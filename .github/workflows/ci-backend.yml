@@ -8,6 +8,7 @@ on:
       - "tests/**"
       - "pyproject.toml"
       - "Dockerfile"
+      - "docker-compose.yml"
       - "run.py"
   pull_request:
     branches: [master, main]
@@ -16,6 +17,7 @@ on:
       - "tests/**"
       - "pyproject.toml"
       - "Dockerfile"
+      - "docker-compose.yml"
       - "run.py"
 
 env:

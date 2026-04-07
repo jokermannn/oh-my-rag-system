@@ -41,11 +41,26 @@ describe('App', () => {
     await userEvent.click(screen.getByText('Add Document'))
     expect(screen.getByRole('heading', { name: 'Add to Archive' })).toBeInTheDocument()
 
-    const backdrop = document.querySelector('[style*="position: fixed"]')
+    const backdrop = screen.getByTestId('modal-backdrop')
     await userEvent.click(backdrop)
     await waitFor(() =>
       expect(screen.queryByRole('heading', { name: 'Add to Archive' })).not.toBeInTheDocument()
     )
+  })
+
+  it('handles non-array response from documents API gracefully', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      json: () => Promise.resolve({ error: 'something went wrong' }),
+    })
+    render(<App />)
+    await waitFor(() =>
+      expect(screen.getByText(/No documents yet/)).toBeInTheDocument()
+    )
+  })
+
+  it('send button has accessible label', async () => {
+    render(<App />)
+    expect(screen.getByRole('button', { name: 'Send message' })).toBeInTheDocument()
   })
 
   it('shows document count in header after load', async () => {

@@ -32,7 +32,7 @@ export function ThinkingDots() {
   return (
     <div style={{ display: 'flex', gap: 5, alignItems: 'center', padding: '2px 0' }}>
       {[0, 1, 2].map(i => (
-        <div key={i} style={{
+        <div key={i} data-testid="thinking-dot" style={{
           width: 6, height: 6, borderRadius: '50%',
           background: 'var(--terracotta)',
           animation: `pulse-dot 1.2s ease-in-out ${i * 0.18}s infinite`,
@@ -208,7 +208,7 @@ export function UploadModal({ onClose, onSuccess }) {
   }
 
   return (
-    <div style={{
+    <div data-testid="modal-backdrop" style={{
       position: 'fixed', inset: 0, zIndex: 100,
       background: 'rgba(20,20,19,0.4)', backdropFilter: 'blur(4px)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -231,7 +231,7 @@ export function UploadModal({ onClose, onSuccess }) {
             </h2>
             <p style={{ fontSize: 13, color: 'var(--text-tertiary)', marginTop: 3 }}>Ingest a document or web page</p>
           </div>
-          <button onClick={onClose} style={{ color: 'var(--text-tertiary)', padding: 4, borderRadius: 6, marginTop: 2 }}
+          <button onClick={onClose} aria-label="Close" style={{ color: 'var(--text-tertiary)', padding: 4, borderRadius: 6, marginTop: 2 }}
             onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'}
             onMouseLeave={e => e.currentTarget.style.color = 'var(--text-tertiary)'}>
             <Icon d={Icons.x} size={16} />
@@ -275,7 +275,7 @@ export function UploadModal({ onClose, onSuccess }) {
             />
           </div>
 
-          {error && <p style={{ color: '#b53333', fontSize: 12.5, marginBottom: 10 }}>{error}</p>}
+          {error && <p style={{ color: 'var(--color-error)', fontSize: 12.5, marginBottom: 10 }}>{error}</p>}
 
           <button type="submit" disabled={loading || !value.trim()} style={{
             width: '100%', padding: '10px',
@@ -303,7 +303,7 @@ function DocumentItem({ doc, onDelete }) {
   const [hovered, setHovered] = useState(false)
   const name = doc.source?.split('/').pop() || doc.id?.slice(0, 14)
   const ext = name?.split('.').pop()?.toUpperCase() || 'DOC'
-  const extColors = { PDF: '#b53333', MD: '#4a7c59', HTML: 'var(--terracotta)', TXT: 'var(--text-tertiary)' }
+  const extColors = { PDF: 'var(--color-error)', MD: '#4a7c59', HTML: 'var(--terracotta)', TXT: 'var(--text-tertiary)' }
 
   return (
     <div
@@ -334,9 +334,9 @@ function DocumentItem({ doc, onDelete }) {
         </div>
       </div>
       {hovered && (
-        <button onClick={() => onDelete(doc.id)}
+        <button onClick={() => onDelete(doc.id)} aria-label="Delete document"
           style={{ color: 'var(--text-tertiary)', padding: 4, borderRadius: 4, transition: 'color 0.12s', flexShrink: 0 }}
-          onMouseEnter={e => e.currentTarget.style.color = '#b53333'}
+          onMouseEnter={e => e.currentTarget.style.color = 'var(--color-error)'}
           onMouseLeave={e => e.currentTarget.style.color = 'var(--text-tertiary)'}>
           <Icon d={Icons.trash} size={13} />
         </button>
@@ -358,7 +358,10 @@ export default function App() {
   const inputRef = useRef(null)
 
   const loadDocs = useCallback(async () => {
-    try { setDocuments(await api.documents()) }
+    try {
+      const docs = await api.documents()
+      setDocuments(Array.isArray(docs) ? docs : [])
+    }
     catch { setDocuments([]) }
     finally { setDocsLoading(false) }
   }, [])
@@ -370,23 +373,30 @@ export default function App() {
       chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: 'smooth' })
   }, [messages])
 
+  const handleKeyDown = useCallback((e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() }
+  }, [input, loading])
+
   const handleSend = async () => {
     const q = input.trim()
     if (!q || loading) return
     setInput('')
-    setMessages(m => [...m, { role: 'user', content: q }, { role: 'assistant', thinking: true, content: '', sources: [] }])
+    setMessages(m => [...m,
+      { id: crypto.randomUUID(), role: 'user', content: q },
+      { id: crypto.randomUUID(), role: 'assistant', thinking: true, content: '', sources: [] },
+    ])
     setLoading(true)
     try {
       const res = await api.query(q)
       setMessages(m => {
         const next = [...m]
-        next[next.length - 1] = { role: 'assistant', content: res.answer || 'No answer returned.', sources: res.sources || [] }
+        next[next.length - 1] = { ...next[next.length - 1], thinking: false, content: res.answer || 'No answer returned.', sources: res.sources || [] }
         return next
       })
     } catch {
       setMessages(m => {
         const next = [...m]
-        next[next.length - 1] = { role: 'assistant', content: 'Could not reach the server. Is it running?', sources: [] }
+        next[next.length - 1] = { ...next[next.length - 1], thinking: false, content: 'Could not reach the server. Is it running?', sources: [] }
         return next
       })
     } finally {
@@ -545,7 +555,7 @@ export default function App() {
               </div>
             </div>
           )}
-          {messages.map((msg, i) => <Message key={i} msg={msg} />)}
+          {messages.map(msg => <Message key={msg.id} msg={msg} />)}
         </div>
 
         {/* Input */}
@@ -574,7 +584,8 @@ export default function App() {
                 e.target.style.height = 'auto'
                 e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px'
               }}
-              onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() } }}
+              onKeyDown={handleKeyDown}
+              aria-label="Query input"
               placeholder="Ask anything about your documents…"
               rows={1}
               disabled={loading}
@@ -585,7 +596,7 @@ export default function App() {
                 fontFamily: 'var(--font-sans)',
               }}
             />
-            <button onClick={handleSend} disabled={loading || !input.trim()} style={{
+            <button onClick={handleSend} disabled={loading || !input.trim()} aria-label="Send message" style={{
               width: 36, height: 36, borderRadius: 8, flexShrink: 0,
               background: loading || !input.trim() ? 'var(--warm-sand)' : 'var(--terracotta)',
               color: loading || !input.trim() ? 'var(--text-tertiary)' : 'var(--ivory)',

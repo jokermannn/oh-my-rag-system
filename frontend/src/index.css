@@ -31,6 +31,9 @@
   --ring-deep:     #c2c0b6;
   --focus-blue:    #3898ec;
 
+  /* Semantic */
+  --color-error:   #b53333;
+
   /* Typography */
   --font-serif: 'Lora', Georgia, serif;
   --font-sans:  'DM Sans', system-ui, sans-serif;

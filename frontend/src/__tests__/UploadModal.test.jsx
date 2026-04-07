@@ -36,9 +36,8 @@ describe('UploadModal', () => {
 
   it('calls onClose when backdrop is clicked', async () => {
     const onClose = vi.fn()
-    const { container } = render(<UploadModal onClose={onClose} onSuccess={noop} />)
-    // The outer backdrop div is the first fixed-position element
-    const backdrop = container.firstChild
+    render(<UploadModal onClose={onClose} onSuccess={noop} />)
+    const backdrop = screen.getByTestId('modal-backdrop')
     await userEvent.click(backdrop)
     expect(onClose).toHaveBeenCalledTimes(1)
   })
@@ -46,9 +45,7 @@ describe('UploadModal', () => {
   it('calls onClose when X button is clicked', async () => {
     const onClose = vi.fn()
     render(<UploadModal onClose={onClose} onSuccess={noop} />)
-    // The X close button is the first button in the DOM (top-right of header)
-    const buttons = screen.getAllByRole('button')
-    await userEvent.click(buttons[0])
+    await userEvent.click(screen.getByRole('button', { name: 'Close' }))
     expect(onClose).toHaveBeenCalled()
   })
 
