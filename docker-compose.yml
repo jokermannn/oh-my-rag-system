@@ -27,5 +27,12 @@ services:
       qdrant:
         condition: service_healthy
 
+  frontend:
+    image: ghcr.io/jokermannn/oh-my-rag-system-frontend:latest
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+
 volumes:
   qdrant_data:
