@@ -28,7 +28,7 @@ const Icons = {
 }
 
 /* ─── Thinking Dots ─────────────────────────────────────── */
-function ThinkingDots() {
+export function ThinkingDots() {
   return (
     <div style={{ display: 'flex', gap: 5, alignItems: 'center', padding: '2px 0' }}>
       {[0, 1, 2].map(i => (
@@ -43,7 +43,7 @@ function ThinkingDots() {
 }
 
 /* ─── Source Card ───────────────────────────────────────── */
-function SourceCard({ source, index }) {
+export function SourceCard({ source, index }) {
   const [open, setOpen] = useState(false)
   const label = source.metadata?.source?.split('/').pop() || source.document_id?.slice(0, 10) || `Source ${index + 1}`
 
@@ -104,7 +104,7 @@ function SourceCard({ source, index }) {
 }
 
 /* ─── Message ────────────────────────────────────────────── */
-function Message({ msg }) {
+export function Message({ msg }) {
   const isUser = msg.role === 'user'
   const [showSources, setShowSources] = useState(false)
   const hasSources = msg.sources?.length > 0
@@ -186,7 +186,7 @@ function Message({ msg }) {
 }
 
 /* ─── Upload Modal ──────────────────────────────────────── */
-function UploadModal({ onClose, onSuccess }) {
+export function UploadModal({ onClose, onSuccess }) {
   const [type, setType]     = useState('url')
   const [value, setValue]   = useState('')
   const [loading, setLoading] = useState(false)

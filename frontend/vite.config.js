@@ -6,11 +6,16 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/query':     'http://localhost:8000',
-      '/ingest':    'http://localhost:8000',
-      '/documents': 'http://localhost:8000',
-      '/jobs':      'http://localhost:8000',
+      '/query':         'http://localhost:8000',
+      '/ingest':        'http://localhost:8000',
+      '/documents':     'http://localhost:8000',
+      '/jobs':          'http://localhost:8000',
       '/conversations': 'http://localhost:8000',
     }
+  },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './src/__tests__/setup.js',
   }
 })
