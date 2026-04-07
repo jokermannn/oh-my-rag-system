@@ -4,6 +4,7 @@ A production-grade Retrieval Augmented Generation (RAG) system with a React fron
 
 ![CI](https://github.com/jokermannn/oh-my-rag-system/actions/workflows/ci.yml/badge.svg)
 ![CD](https://github.com/jokermannn/oh-my-rag-system/actions/workflows/cd.yml/badge.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
 ## Features
 
@@ -19,7 +20,7 @@ A production-grade Retrieval Augmented Generation (RAG) system with a React fron
 - Async job queue — ingest returns a job ID immediately
 
 **Generation**
-- Pluggable LLM: OpenAI, Anthropic, Ollama
+- Pluggable LLM: OpenRouter (default), OpenAI, Anthropic, Ollama
 - Multi-turn conversations with LLM-based query rewriting
 - Full trace info (timings, rewrite, HyDE hypothesis, retrieval/rerank scores)
 
@@ -28,56 +29,58 @@ A production-grade Retrieval Augmented Generation (RAG) system with a React fron
 - Answer relevance scoring (cosine similarity)
 
 **Frontend**
-- React + Vite chat interface
+- React + nginx chat interface
 - Document library sidebar
 - Expandable source citations
 
 ## Architecture
 
 ```
-┌─────────────┐     ┌──────────────────────────────────────────────┐
-│  React UI   │────▶│  FastAPI                                      │
-│  :5173      │     │  /ingest  /query  /documents  /conversations  │
-└─────────────┘     └──────────┬───────────────────────────────────┘
-                               │
-              ┌────────────────┼────────────────┐
-              ▼                ▼                ▼
-        Qdrant :6333     LocalEmbedder     OpenAI / Anthropic
-        (vector store)   (all-MiniLM-L6)   / Ollama (LLM)
+Browser
+  └── http://localhost:80
+        └── nginx (frontend image)
+              ├── /                   → React SPA (static files)
+              └── /query, /ingest...  → http://app:8000 (proxy)
+                    └── FastAPI (backend image)
+                          ├── LocalEmbedder (all-MiniLM-L6-v2)
+                          ├── OpenRouterLLM / OpenAI / Anthropic / Ollama
+                          └── Qdrant :6333 (vector store)
 ```
 
 ## Quick Start
 
-### Docker Compose (recommended)
-
 ```bash
-# 1. Set your OpenAI API key
-echo "OPENAI_API_KEY=sk-..." > .env
+# 1. Clone
+git clone https://github.com/jokermannn/oh-my-rag-system.git
+cd oh-my-rag-system
 
-# 2. Start backend + Qdrant
+# 2. Configure
+cp .env.example .env   # fill in OPENROUTER_API_KEY
+
+# 3. Start everything
 docker compose up -d
-
-# 3. Start the frontend
-cd frontend && npm install && npm run dev
 ```
 
-Open http://localhost:5173
+Open http://localhost
 
-### Local Development
+## Configuration
 
-**Prerequisites:** Python 3.11+, [Qdrant running via Docker](https://qdrant.tech/documentation/quick-start/)
+Copy `.env.example` to `.env` and fill in your values:
 
-```bash
-# Start Qdrant
-docker compose up -d qdrant
+```env
+OPENROUTER_API_KEY=sk-or-...
+OPENROUTER_MODEL=qwen/qwen3.6-plus:free   # any model on openrouter.ai/models
 
-# Install dependencies (CPU-only torch)
-pip install torch --index-url https://download.pytorch.org/whl/cpu
-pip install -e ".[dev]"
-
-# Run the API server
-OPENAI_API_KEY=sk-... python run.py
+# Optional — only needed if switching LLM in run.py
+# OPENAI_API_KEY=sk-...
 ```
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `OPENROUTER_API_KEY` | — | Required for default LLM |
+| `OPENROUTER_MODEL` | `openai/gpt-4o-mini` | Any OpenRouter model slug |
+| `QDRANT_HOST` | `localhost` | Qdrant host |
+| `QDRANT_PORT` | `6333` | Qdrant port |
 
 ## API Reference
 
@@ -89,31 +92,22 @@ OPENAI_API_KEY=sk-... python run.py
 | `DELETE` | `/documents/{id}` | Delete a document and its chunks |
 | `GET` | `/jobs/{id}` | Check ingestion job status |
 | `POST` | `/conversations` | Create a conversation |
-| `POST` | `/conversations/{id}/query` | Query within a conversation (with rewrite) |
+| `POST` | `/conversations/{id}/query` | Query within a conversation |
 | `POST` | `/eval` | Evaluate answer faithfulness and relevance |
 
 **Ingest a document**
 ```bash
-curl -X POST http://localhost:8000/ingest \
+curl -X POST http://localhost/ingest \
   -H "Content-Type: application/json" \
-  -d '{"path_or_url": "/path/to/doc.md", "doc_type": "markdown"}'
+  -d '{"path_or_url": "https://example.com/doc.html", "doc_type": "html"}'
 ```
 
 **Query**
 ```bash
-curl -X POST http://localhost:8000/query \
+curl -X POST http://localhost/query \
   -H "Content-Type: application/json" \
   -d '{"question": "What is this document about?", "use_hyde": true}'
 ```
-
-## Configuration
-
-| Environment Variable | Default | Description |
-|---------------------|---------|-------------|
-| `QDRANT_HOST` | `localhost` | Qdrant host |
-| `QDRANT_PORT` | `6333` | Qdrant port |
-| `OPENAI_API_KEY` | — | Required for OpenAI LLM / embedder |
-| `ANTHROPIC_API_KEY` | — | Required for Anthropic LLM |
 
 ## Project Structure
 
@@ -127,7 +121,7 @@ app/
 ├── eval/         Faithfulness + answer relevance evaluation
 ├── hyde/         Hypothetical Document Embeddings
 ├── jobs/         Async ingestion job queue
-├── llm/          OpenAI, Anthropic, Ollama LLM clients
+├── llm/          OpenRouter, OpenAI, Anthropic, Ollama LLM clients
 ├── loaders/      Markdown, PDF, HTML document loaders
 ├── prompt/       RAG prompt builder
 ├── reranker/     Cross-Encoder reranker
@@ -135,8 +129,21 @@ app/
 ├── tracing/      Request tracing
 └── vectorstore/  Qdrant vector store
 
-frontend/         React + Vite frontend
+frontend/         React + Vite app, served by nginx
 k8s/              Kubernetes manifests
+```
+
+## Development
+
+```bash
+# Backend
+docker compose up -d qdrant
+pip install torch --index-url https://download.pytorch.org/whl/cpu
+pip install -e ".[dev]"
+OPENROUTER_API_KEY=sk-or-... python run.py   # http://localhost:8000
+
+# Frontend
+cd frontend && npm install && npm run dev     # http://localhost:5173
 ```
 
 ## Testing
@@ -145,44 +152,41 @@ k8s/              Kubernetes manifests
 # Unit tests (no external dependencies)
 pytest tests/unit/ -v
 
-# Integration tests (requires Qdrant running)
-NO_PROXY="localhost,127.0.0.1" pytest tests/integration/ -v
+# Integration tests (requires Qdrant)
+NO_PROXY="localhost,127.0.0.1" pytest tests/integration/test_pipeline.py -v
+
+# OpenRouter integration tests (requires OPENROUTER_API_KEY)
+OPENROUTER_API_KEY=sk-or-... pytest tests/integration/test_openrouter.py -v
+```
+
+## Switching LLMs
+
+```python
+# run.py
+from app.llm.openrouter_llm import OpenRouterLLM   # default
+from app.llm.openai_llm import OpenAILLM
+from app.llm.anthropic_llm import AnthropicLLM
+from app.llm.ollama_llm import OllamaLLM
+
+llm = OpenRouterLLM(model="anthropic/claude-3.5-sonnet")
 ```
 
 ## Deployment
 
-### Docker Image
+**Docker images** (built automatically by CD on every push to master):
 
-The CD pipeline automatically builds and pushes a multi-arch image (`amd64` + `arm64`) to GitHub Container Registry on every push to `master`.
+| Image | Description |
+|-------|-------------|
+| `ghcr.io/jokermannn/oh-my-rag-system:latest` | FastAPI backend |
+| `ghcr.io/jokermannn/oh-my-rag-system-frontend:latest` | nginx + React frontend |
 
-```bash
-docker pull ghcr.io/jokermannn/oh-my-rag-system:latest
-```
-
-### Kubernetes
-
+**Kubernetes**
 ```bash
 kubectl apply -f k8s/namespace.yaml
 kubectl apply -f k8s/qdrant/
 kubectl apply -f k8s/app/
 ```
 
-See [`k8s/app/secret.example.yaml`](k8s/app/secret.example.yaml) for required secrets.
+## License
 
-## Switching LLMs
-
-```python
-# OpenAI (default)
-from app.llm.openai_llm import OpenAILLM
-llm = OpenAILLM(model="gpt-4o-mini")
-
-# Anthropic
-from app.llm.anthropic_llm import AnthropicLLM
-llm = AnthropicLLM()
-
-# Ollama (local)
-from app.llm.ollama_llm import OllamaLLM
-llm = OllamaLLM(model="llama3")
-```
-
-Pass any LLM to `create_app(embedder=..., store=..., llm=llm)`.
+MIT — see [LICENSE](LICENSE)
