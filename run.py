@@ -1,9 +1,16 @@
 """
 Entry point for local dev and Docker.
 Env vars:
-  QDRANT_HOST      Qdrant host (default: localhost)
-  QDRANT_PORT      Qdrant port (default: 6333)
-  OPENAI_API_KEY   Required for OpenAILLM
+  QDRANT_HOST          Qdrant host (default: localhost)
+  QDRANT_PORT          Qdrant port (default: 6333)
+  OPENAI_API_KEY       Required for OpenAILLM
+  OPENROUTER_API_KEY   Required for OpenRouterLLM
+  OPENROUTER_MODEL     OpenRouter model slug (default: openai/gpt-4o-mini)
+
+To switch LLM, replace OpenAILLM() with:
+  from app.llm.openrouter_llm import OpenRouterLLM;  llm = OpenRouterLLM()
+  from app.llm.anthropic_llm import AnthropicLLM;    llm = AnthropicLLM()
+  from app.llm.ollama_llm import OllamaLLM;          llm = OllamaLLM()
 """
 import os
 from app.api.main import create_app
