@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rag-app
+  namespace: rag-system
+spec:
+  selector:
+    app: rag-app
+  ports:
+    - port: 80
+      targetPort: 8000
+  type: LoadBalancer
+  # On minikube: run `minikube tunnel` to get an external IP.
+  # On K3s / bare metal: use NodePort or add an Ingress instead.

@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rag-app
+  namespace: rag-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rag-app
+  template:
+    metadata:
+      labels:
+        app: rag-app
+    spec:
+      # Required if ghcr.io package is private.
+      # Create with: kubectl create secret docker-registry ghcr-secret \
+      #   --docker-server=ghcr.io \
+      #   --docker-username=<github-username> \
+      #   --docker-password=<github-pat> \
+      #   -n rag-system
+      # imagePullSecrets:
+      #   - name: ghcr-secret
+
+      containers:
+        - name: rag-app
+          image: ghcr.io/jokermannn/oh-my-rag-system:latest
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: rag-app-config
+            - secretRef:
+                name: rag-app-secret
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "3Gi"   # sentence-transformers + torch need headroom
+              cpu: "2000m"
+          readinessProbe:
+            httpGet:
+              path: /docs
+              port: 8000
+            initialDelaySeconds: 30   # model loading takes time
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /docs
+              port: 8000
+            initialDelaySeconds: 60
+            periodSeconds: 30
