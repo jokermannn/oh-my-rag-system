@@ -1,12 +1,12 @@
-import pytest
-import tempfile
-from pathlib import Path
-from fastapi.testclient import TestClient
 from unittest.mock import MagicMock
+
+import pytest
+from fastapi.testclient import TestClient
+from qdrant_client import QdrantClient
+
 from app.api.main import create_app
 from app.embedder.local_embedder import LocalEmbedder
 from app.vectorstore.qdrant_store import QdrantStore
-from qdrant_client import QdrantClient
 
 
 @pytest.fixture(scope="module")

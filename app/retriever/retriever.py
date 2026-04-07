@@ -1,6 +1,6 @@
+from app.embedder.base import BaseEmbedder
 from app.models import Chunk
 from app.vectorstore.qdrant_store import QdrantStore
-from app.embedder.base import BaseEmbedder
 
 
 def rrf_fuse(ranked_lists: list[list[Chunk]], k: int = 60, top_k: int = 10) -> list[Chunk]:

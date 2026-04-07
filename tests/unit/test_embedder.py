@@ -1,8 +1,8 @@
 import inspect
 from unittest.mock import MagicMock
+
 from app.embedder.base import BaseEmbedder
 from app.embedder.openai_embedder import OpenAIEmbedder
-from app.embedder.local_embedder import LocalEmbedder
 
 
 def test_openai_embedder_calls_api():

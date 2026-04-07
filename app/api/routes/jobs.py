@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException
+
 from app.api.deps import get_job_queue
 
 router = APIRouter(prefix="/jobs")

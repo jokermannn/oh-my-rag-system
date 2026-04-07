@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock
+
 from app.hyde.hyde import HyDEGenerator
-from app.models import Message
 
 
 def test_hyde_generates_hypothesis_and_averages_embeddings():

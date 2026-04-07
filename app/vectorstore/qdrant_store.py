@@ -1,5 +1,6 @@
 from qdrant_client import QdrantClient
-from qdrant_client.models import PointStruct, VectorParams, Distance
+from qdrant_client.models import Distance, PointStruct, VectorParams
+
 from app.models import Chunk
 
 
@@ -54,7 +55,7 @@ class QdrantStore:
         return [self._point_to_chunk(r.id, r.payload) for r in results]
 
     def delete_by_document_id(self, document_id: str) -> None:
-        from qdrant_client.models import Filter, FieldCondition, MatchValue
+        from qdrant_client.models import FieldCondition, Filter, MatchValue
         self.client.delete(
             collection_name=self.collection_name,
             points_selector=Filter(

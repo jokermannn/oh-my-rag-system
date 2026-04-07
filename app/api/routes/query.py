@@ -1,12 +1,13 @@
+import time
 from typing import Optional
+
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-import time
 
-from app.api.deps import get_embedder, get_store, get_llm, get_prompt_builder, get_reranker
+from app.api.deps import get_embedder, get_llm, get_prompt_builder, get_reranker, get_store
+from app.hyde.hyde import HyDEGenerator
 from app.models import QueryResult, TraceInfo
 from app.retriever.retriever import rrf_fuse
-from app.hyde.hyde import HyDEGenerator
 
 router = APIRouter()
 FALLBACK_MSG = "在知识库中未找到与该问题相关的内容。"

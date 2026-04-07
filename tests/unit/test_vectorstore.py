@@ -1,6 +1,7 @@
 from unittest.mock import MagicMock
-from app.vectorstore.qdrant_store import QdrantStore
+
 from app.models import Chunk
+from app.vectorstore.qdrant_store import QdrantStore
 
 
 def _make_chunk(id: str, content: str, level: str = "child", parent_id=None) -> Chunk:

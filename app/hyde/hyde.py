@@ -1,5 +1,5 @@
-from app.llm.base import BaseLLM
 from app.embedder.base import BaseEmbedder
+from app.llm.base import BaseLLM
 from app.models import Message
 
 HYDE_PROMPT = "Write a short passage that would directly answer the following question:\n\n"

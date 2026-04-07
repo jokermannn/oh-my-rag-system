@@ -1,7 +1,8 @@
 import inspect
+
+from app.models import Chunk
 from app.reranker.base import BaseReranker
 from app.reranker.cross_encoder_reranker import CrossEncoderReranker
-from app.models import Chunk
 
 
 def _make_chunk(id: str, content: str) -> Chunk:

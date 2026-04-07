@@ -1,6 +1,7 @@
 import pytest
-from app.prompt.builder import PromptBuilder
+
 from app.models import Chunk, Message
+from app.prompt.builder import PromptBuilder
 
 
 def _make_chunk(content: str) -> Chunk:

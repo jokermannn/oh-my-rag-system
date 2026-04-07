@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-from app.api.deps import get_llm, get_embedder
+
+from app.api.deps import get_embedder, get_llm
 from app.eval.evaluator import RAGEvaluator
 
 router = APIRouter()

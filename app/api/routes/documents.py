@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+
 from app.api.deps import get_store
 
 router = APIRouter(prefix="/documents")

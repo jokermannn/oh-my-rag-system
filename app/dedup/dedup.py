@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+
 from app.models import Document
 from app.vectorstore.qdrant_store import QdrantStore
 

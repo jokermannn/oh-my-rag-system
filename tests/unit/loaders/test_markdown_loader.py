@@ -1,5 +1,5 @@
 import tempfile
-from pathlib import Path
+
 from app.loaders.markdown_loader import MarkdownLoader
 
 

@@ -1,6 +1,8 @@
 from pathlib import Path
+
 import httpx
 from bs4 import BeautifulSoup
+
 from app.loaders.base import BaseLoader
 from app.models import Document
 

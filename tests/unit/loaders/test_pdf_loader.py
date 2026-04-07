@@ -1,5 +1,7 @@
 import tempfile
+
 import fitz  # pymupdf
+
 from app.loaders.pdf_loader import PDFLoader
 
 

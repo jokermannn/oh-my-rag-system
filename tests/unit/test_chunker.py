@@ -1,5 +1,6 @@
 import pytest
 import tiktoken
+
 from app.chunker.chunker import HierarchicalChunker
 from app.models import Document
 

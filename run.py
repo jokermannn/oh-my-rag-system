@@ -1,8 +1,11 @@
 """
-Local development entry point.
-Requires: Qdrant running via `docker compose up -d qdrant`
-Requires: OPENAI_API_KEY environment variable set (for OpenAILLM)
+Entry point for local dev and Docker.
+Env vars:
+  QDRANT_HOST      Qdrant host (default: localhost)
+  QDRANT_PORT      Qdrant port (default: 6333)
+  OPENAI_API_KEY   Required for OpenAILLM
 """
+import os
 from app.api.main import create_app
 from app.embedder.local_embedder import LocalEmbedder
 from app.vectorstore.qdrant_store import QdrantStore
@@ -11,7 +14,9 @@ from app.reranker.cross_encoder_reranker import CrossEncoderReranker
 from qdrant_client import QdrantClient
 import uvicorn
 
-store = QdrantStore(client=QdrantClient(host="localhost", port=6333))
+qdrant_host = os.getenv("QDRANT_HOST", "localhost")
+qdrant_port = int(os.getenv("QDRANT_PORT", "6333"))
+store = QdrantStore(client=QdrantClient(host=qdrant_host, port=qdrant_port))
 store.ensure_collection()
 embedder = LocalEmbedder()
 llm = OpenAILLM()

@@ -1,6 +1,6 @@
 from datetime import datetime
-from app.models import Document, Chunk, Message, Conversation, TraceInfo, QueryResult
-import pytest
+
+from app.models import Chunk, Conversation, Document, QueryResult, TraceInfo
 
 
 def test_document_id_is_content_hash():

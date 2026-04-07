@@ -1,11 +1,12 @@
 from typing import Literal
+
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
-from app.api.deps import get_embedder, get_store, get_chunker, get_job_queue
+from app.api.deps import get_chunker, get_embedder, get_job_queue, get_store
+from app.loaders.html_loader import HTMLLoader
 from app.loaders.markdown_loader import MarkdownLoader
 from app.loaders.pdf_loader import PDFLoader
-from app.loaders.html_loader import HTMLLoader
 
 router = APIRouter()
 

@@ -1,6 +1,8 @@
 import asyncio
+
 import pytest
-from app.jobs.queue import AsyncJobQueue, JobStatus
+
+from app.jobs.queue import AsyncJobQueue
 
 
 @pytest.mark.asyncio

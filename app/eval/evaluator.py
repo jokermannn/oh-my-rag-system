@@ -1,6 +1,7 @@
 import math
-from app.llm.base import BaseLLM
+
 from app.embedder.base import BaseEmbedder
+from app.llm.base import BaseLLM
 from app.models import Message
 
 FAITHFULNESS_PROMPT = (

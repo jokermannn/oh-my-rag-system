@@ -1,5 +1,5 @@
-from app.retriever.retriever import HybridRetriever, rrf_fuse
 from app.models import Chunk
+from app.retriever.retriever import HybridRetriever, rrf_fuse
 
 
 def _make_chunk(id: str, content: str) -> Chunk:

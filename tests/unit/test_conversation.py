@@ -1,7 +1,9 @@
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
+
 from app.conversation.manager import ConversationManager
-from app.models import Message, Conversation
+from app.models import Conversation, Message
 
 
 def test_create_conversation():

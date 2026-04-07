@@ -1,4 +1,5 @@
 import fitz  # pymupdf
+
 from app.loaders.base import BaseLoader
 from app.models import Document
 

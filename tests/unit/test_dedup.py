@@ -1,4 +1,5 @@
 from unittest.mock import MagicMock
+
 from app.dedup.dedup import DedupManager
 from app.models import Document
 

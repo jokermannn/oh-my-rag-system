@@ -1,11 +1,12 @@
 from fastapi import FastAPI
+
+import app.api.deps as deps
+from app.api.routes import conversations, documents, ingest, jobs, query
+from app.api.routes import eval as eval_router
 from app.embedder.base import BaseEmbedder
-from app.vectorstore.qdrant_store import QdrantStore
 from app.llm.base import BaseLLM
 from app.reranker.base import BaseReranker
-import app.api.deps as deps
-from app.api.routes import ingest, query, conversations, jobs, documents
-from app.api.routes import eval as eval_router
+from app.vectorstore.qdrant_store import QdrantStore
 
 
 def create_app(

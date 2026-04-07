@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+
 from app.conversation.manager import ConversationManager
 
 router = APIRouter(prefix="/conversations")

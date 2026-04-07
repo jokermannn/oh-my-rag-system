@@ -1,5 +1,5 @@
-from app.reranker.base import BaseReranker
 from app.models import Chunk
+from app.reranker.base import BaseReranker
 
 
 class CrossEncoderReranker(BaseReranker):
