@@ -6,7 +6,7 @@
 
 **Architecture:** Playwright lives inside `frontend/` as a second test layer alongside Vitest. A `playwright.config.ts` defines two projects — `local` (real backend) and `ci` (Vite dev server + `page.route()` mocks). A shared `mockApi()` helper in `e2e/fixtures/mock-api.ts` intercepts all API calls in CI mode. Each spec file owns one user flow.
 
-**Tech Stack:** `@playwright/test` ^1.44, Chromium only, TypeScript, existing Vite dev server for CI mode.
+**Tech Stack:** `@playwright/test` ^1.59.1, Chromium only, TypeScript, existing Vite dev server for CI mode.
 
 ---
 
