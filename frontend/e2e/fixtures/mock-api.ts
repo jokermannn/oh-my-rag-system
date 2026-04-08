@@ -2,15 +2,15 @@ import { Page } from '@playwright/test'
 
 export interface MockOptions {
   /** Documents returned by GET /documents. Default: [] */
-  documents?: Array<{ id: string; source: string; chunk_count: number }>
+  documents?: Array<{ id: string; source: string; version?: number; chunk_count: number }>
   /** Answer text returned by POST /query. Default: 'Test answer from mock' */
   queryAnswer?: string
   /** Sources returned by POST /query. Default: [] */
   querySources?: Array<{
     document_id: string
     content: string
-    level: string
-    metadata: Record<string, string>
+    level: 'parent' | 'child'
+    metadata: Record<string, unknown>
   }>
   /** If true, POST /ingest aborts (network error). Default: false */
   ingestError?: boolean
@@ -23,7 +23,8 @@ export interface MockOptions {
  * Call this before page.goto() in each test that runs in CI mode.
  */
 export async function mockApi(page: Page, opts: MockOptions = {}) {
-  // DELETE /documents/:id  (regex to avoid matching GET /documents)
+  // DELETE /documents/:id — regex requires a path segment after the slash,
+  // so it cannot match the bare /documents path used by GET
   await page.route(/\/documents\/.+/, route =>
     route.fulfill({ status: 204, body: '' })
   )
