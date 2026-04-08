@@ -10,7 +10,7 @@ from app.models import Document
 class HTMLLoader(BaseLoader):
     def load(self, path_or_url: str) -> list[Document]:
         if path_or_url.startswith("http://") or path_or_url.startswith("https://"):
-            response = httpx.get(path_or_url, follow_redirects=True, timeout=30)
+            response = httpx.get(path_or_url, follow_redirects=True, timeout=30, verify=False)
             response.raise_for_status()
             raw_html = response.text
             doc_type = "url"

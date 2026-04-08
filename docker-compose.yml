@@ -13,14 +13,14 @@ services:
       retries: 10
 
   app:
-    image: ghcr.io/jokermannn/oh-my-rag-system:latest
+    build: .
     platform: linux/amd64
     ports:
       - "8000:8000"
     environment:
       QDRANT_HOST: qdrant
       QDRANT_PORT: 6333
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-dummy}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
       OPENROUTER_MODEL: ${OPENROUTER_MODEL:-openai/gpt-4o-mini}
     depends_on:

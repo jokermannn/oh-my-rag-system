@@ -1,9 +1,4 @@
 import { test, expect } from '@playwright/test'
-import { mockApi } from './fixtures/mock-api'
-
-test.beforeEach(async ({ page }) => {
-  await mockApi(page)
-})
 
 test('shows brand name "Archive"', async ({ page }) => {
   await page.goto('/')

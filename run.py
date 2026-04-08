@@ -24,7 +24,7 @@ from app.vectorstore.qdrant_store import QdrantStore
 
 qdrant_host = os.getenv("QDRANT_HOST", "localhost")
 qdrant_port = int(os.getenv("QDRANT_PORT", "6333"))
-store = QdrantStore(client=QdrantClient(host=qdrant_host, port=qdrant_port))
+store = QdrantStore(client=QdrantClient(host=qdrant_host, port=qdrant_port), vector_size=384)
 store.ensure_collection()
 embedder = LocalEmbedder()
 llm = OpenRouterLLM()

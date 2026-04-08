@@ -1,13 +1,24 @@
 import { test, expect } from '@playwright/test'
-import { mockApi } from './fixtures/mock-api'
 
-const DOC = { id: 'doc1', source: '/path/to/notes.md', chunk_count: 5 }
+// Tests share backend state, so run serially to avoid race conditions.
+test.describe.configure({ mode: 'serial' })
+
+/** Ensure at least one document exists in the sidebar, ingesting one if needed. */
+async function ensureDocument(page: import('@playwright/test').Page) {
+  await page.goto('/')
+  if (await page.getByText('Add one to begin.').isVisible()) {
+    await page.getByRole('button', { name: 'Add Document' }).click()
+    await page.getByRole('textbox', { name: /https:\/\/example\.com\/article/ }).fill('https://example.com')
+    await page.getByRole('button', { name: 'Add to Archive' }).click()
+    await expect(page.getByRole('heading', { name: 'Add to Archive' })).not.toBeVisible()
+    await expect(page.getByText('example.com')).toBeVisible({ timeout: 15000 })
+  }
+}
 
 test('hovering a document reveals the delete button', async ({ page }) => {
-  await mockApi(page, { documents: [DOC] })
-  await page.goto('/')
+  await ensureDocument(page)
 
-  const docName = page.getByText('notes.md')
+  const docName = page.getByText('example.com').first()
   await expect(docName).toBeVisible()
 
   await docName.hover()
@@ -15,14 +26,10 @@ test('hovering a document reveals the delete button', async ({ page }) => {
 })
 
 test('clicking delete removes the document from the sidebar', async ({ page }) => {
-  await mockApi(page, { documents: [DOC] })
-  await page.goto('/')
+  await ensureDocument(page)
 
-  await expect(page.getByText('notes.md')).toBeVisible()
+  await page.getByText('example.com').first().hover()
+  await page.getByRole('button', { name: 'Delete document' }).first().click()
 
-  await page.getByText('notes.md').hover()
-  await page.getByRole('button', { name: 'Delete document' }).click()
-
-  await expect(page.getByText('notes.md')).not.toBeVisible()
-  await expect(page.getByText('No documents yet.')).toBeVisible()
+  await expect(page.getByText('example.com')).not.toBeVisible()
 })

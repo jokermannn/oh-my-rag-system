@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test'
-import { mockApi } from './fixtures/mock-api'
 
 test('shows error message when query API returns 500', async ({ page }) => {
-  await mockApi(page, { queryError: true })
+  // Intercept only the query endpoint to simulate a server error.
+  // All other requests (e.g. /documents on load) hit the real backend.
+  await page.route('/query', route => route.fulfill({ status: 500, body: 'Internal Server Error' }))
   await page.goto('/')
 
   await page.getByLabel('Query input').fill('Will this work?')
@@ -12,7 +13,8 @@ test('shows error message when query API returns 500', async ({ page }) => {
 })
 
 test('shows error inside modal when ingest fails with network error', async ({ page }) => {
-  await mockApi(page, { ingestError: true })
+  // Intercept only the ingest endpoint to simulate a network failure.
+  await page.route('/ingest', route => route.abort())
   await page.goto('/')
 
   await page.getByRole('button', { name: 'Add Document' }).click()

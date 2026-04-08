@@ -41,7 +41,7 @@ class HierarchicalChunker:
                 document_id=doc.id,
                 content=parent_text,
                 level="parent",
-                metadata={**doc.metadata},
+                metadata={**doc.metadata, "source": doc.source},
             )
             result.append(parent_chunk)
 
@@ -53,7 +53,7 @@ class HierarchicalChunker:
                     content=child_text,
                     parent_id=parent_id,
                     level="child",
-                    metadata={**doc.metadata},
+                    metadata={**doc.metadata, "source": doc.source},
                 )
                 result.append(child_chunk)
 
